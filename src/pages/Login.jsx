@@ -17,7 +17,8 @@ export default function Login() {
 
   const {
     setUserRole,
-    users
+    users,
+    t
   } = useApp();
 
   // =========================================
@@ -60,7 +61,7 @@ export default function Login() {
         return;
       }
 
-      alert('User not found');
+      alert(t('login.userNotFound'));
       return;
     }
 
@@ -111,7 +112,7 @@ export default function Login() {
 
       default:
         console.error('INVALID ROLE:', role);
-        alert('Invalid role assigned');
+        alert(t('login.invalidRole'));
         break;
     }
   };
@@ -228,7 +229,7 @@ export default function Login() {
                 margin: 0
               }}
             >
-              Sign In
+              {t('login.title')}
             </h2>
           </div>
 
@@ -251,7 +252,7 @@ export default function Login() {
                   marginBottom: '0.5rem'
                 }}
               >
-                Email Address
+                {t('login.email')}
               </label>
 
               <input
@@ -275,7 +276,7 @@ export default function Login() {
                   marginBottom: '0.5rem'
                 }}
               >
-                Password
+                {t('login.password')}
               </label>
 
               <input
@@ -301,7 +302,7 @@ export default function Login() {
               }}
             >
               <LogIn size={18} />
-              {' '}Sign In
+              {' '}{t('login.signInBtn')}
             </button>
 
           </form>
@@ -330,7 +331,7 @@ export default function Login() {
               color: 'var(--text-muted)'
             }}
           >
-            Quick Access Demo
+            {t('login.quickAccess')}
           </h3>
 
           {/* ========================================= */}
@@ -370,7 +371,7 @@ export default function Login() {
 
             <div>
               <h4 style={{ margin: 0 }}>
-                Admin Dashboard
+                {t('login.admin')}
               </h4>
 
               <p className="text-xs text-muted">
@@ -417,7 +418,7 @@ export default function Login() {
 
             <div>
               <h4 style={{ margin: 0 }}>
-                Cashier POS
+                {t('login.cashier')}
               </h4>
 
               <p className="text-xs text-muted">
@@ -464,7 +465,7 @@ export default function Login() {
 
             <div>
               <h4 style={{ margin: 0 }}>
-                Kitchen KDS
+                {t('login.kitchen')}
               </h4>
 
               <p className="text-xs text-muted">

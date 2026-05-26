@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const AppContext = createContext();
 
@@ -23,11 +24,17 @@ export const AppProvider = ({ children }) => {
     { id: 4, name: 'مشروب غازي', price: 1.50, categoryId: 2, image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&q=80' },
   ];
   
-  const [language, setLanguage] = useState(localStorage.getItem('pos_language') || 'en');
+  const { t, i18n } = useTranslation();
+  const language = i18n.language || 'en';
   const setLang = (lang) => {
-    setLanguage(lang);
+    i18n.changeLanguage(lang);
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     localStorage.setItem('pos_language', lang);
   };
+
+  useEffect(() => {
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+  }, [language]);
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -214,24 +221,7 @@ export const AppProvider = ({ children }) => {
   };
 
 
-  const translations = {
-    en: {
-      cashierTitle: 'Shawarma House - Cashier',
-      adminTitle: 'Shawarma House - Admin',
-      logout: 'Logout',
-      adminOrders: 'Admin Orders',
-      noAdminOrders: 'No admin orders.',
-      // add more as needed
-    },
-    ar: {
-      cashierTitle: 'بيت الشاورما - Cashier',
-      adminTitle: 'بيت الشاورما - Admin',
-      logout: 'خروج',
-      adminOrders: 'طلبات الإدارة',
-      noAdminOrders: 'لا توجد طلبات إدارية.',
-    }
-  };
-  const t = (key) => translations[language][key] || key;
+
 
   const value = {
     userRole,

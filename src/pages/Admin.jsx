@@ -1793,7 +1793,7 @@ export default function Admin() {
             style={{ justifyContent: 'flex-start', padding: '0.7rem 1rem' }}
             onClick={() => setActiveTab('dashboard')}
           >
-            <LayoutDashboard size={18} /> Dashboard
+            <LayoutDashboard size={18} /> {t('admin.dashboard')}
           </button>
 
           <button
@@ -1801,7 +1801,7 @@ export default function Admin() {
             style={{ justifyContent: 'flex-start', padding: '0.7rem 1rem' }}
             onClick={() => setActiveTab('categories')}
           >
-            <Tag size={18} /> Categories
+            <Tag size={18} /> {t('admin.categories')}
           </button>
 
           <button
@@ -1809,7 +1809,7 @@ export default function Admin() {
             style={{ justifyContent: 'flex-start', padding: '0.7rem 1rem' }}
             onClick={() => setActiveTab('menu')}
           >
-            <Coffee size={18} /> Menu Items
+            <Coffee size={18} /> {t('admin.menu')}
           </button>
 
           <button
@@ -1817,7 +1817,7 @@ export default function Admin() {
             style={{ justifyContent: 'flex-start', padding: '0.7rem 1rem' }}
             onClick={() => setActiveTab('orders')}
           >
-            <ShoppingBag size={18} /> Orders
+            <ShoppingBag size={18} /> {t('admin.orders')}
           </button>
 
           <button
@@ -1825,7 +1825,7 @@ export default function Admin() {
             style={{ justifyContent: 'flex-start', padding: '0.7rem 1rem' }}
             onClick={() => setActiveTab('branches')}
           >
-            <Store size={18} /> Branches
+            <Store size={18} /> {t('admin.branches')}
           </button>
 
           <button
@@ -1833,7 +1833,7 @@ export default function Admin() {
             style={{ justifyContent: 'flex-start', padding: '0.7rem 1rem' }}
             onClick={() => setActiveTab('users')}
           >
-            <Users size={18} /> Users
+            <Users size={18} /> {t('admin.users')}
           </button>
         </div>
 
@@ -1853,8 +1853,8 @@ export default function Admin() {
           <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>📊 Dashboard</h1>
-                <p className="text-muted">Real-time statistics & business reports for {currentBranch}</p>
+                <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>📊 {t('admin.dashboard')}</h1>
+                <p className="text-muted">{t('admin.realTimeStats')} {currentBranch}</p>
               </div>
 
               <button
@@ -1877,11 +1877,11 @@ export default function Admin() {
                       onClick={() => setDateFilterType(type)}
                       style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
                     >
-                      {type === 'all' && 'All Time'}
-                      {type === 'today' && 'Today'}
-                      {type === 'week' && 'Last 7 Days'}
-                      {type === 'month' && 'Last 30 Days'}
-                      {type === 'custom' && 'Custom Range'}
+                      {type === 'all' && t('admin.allTime')}
+                      {type === 'today' && t('admin.today')}
+                      {type === 'week' && t('admin.last7Days')}
+                      {type === 'month' && t('admin.last30Days')}
+                      {type === 'custom' && t('admin.customRange')}
                     </button>
                   ))}
                 </div>
@@ -1893,7 +1893,7 @@ export default function Admin() {
                       onChange={(e) => setStartDate(e.target.value)}
                       style={{ padding: '0.4rem', width: '130px', fontSize: '0.85rem' }}
                     />
-                    <span className="text-muted">to</span>
+                    <span className="text-muted">{t('admin.to')}</span>
                     <input
                       type="date"
                       value={endDate}
@@ -1909,7 +1909,7 @@ export default function Admin() {
             <div className="grid grid-cols-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
               <div className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--primary)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
-                  <span>Revenue</span>
+                  <span>{t('admin.revenue')}</span>
                   <DollarSign size={18} />
                 </div>
                 <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#fff' }}>
@@ -1919,18 +1919,18 @@ export default function Admin() {
 
               <div className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--success)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
-                  <span>Total Orders</span>
+                  <span>{t('admin.totalOrders')}</span>
                   <ShoppingBag size={18} />
                 </div>
                 <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#fff' }}>
                   {totalOrders}
                 </div>
-                <div className="text-xs text-muted" style={{ marginTop: '0.5rem' }}>Avg: ${avgOrderValue}</div>
+                <div className="text-xs text-muted" style={{ marginTop: '0.5rem' }}>{t('admin.avgOrder')} ${avgOrderValue}</div>
               </div>
 
               <div className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--warning)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
-                  <span>Pending</span>
+                  <span>{t('admin.needsPrep')}</span>
                   <Calendar size={18} />
                 </div>
                 <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#fff' }}>
@@ -1940,7 +1940,7 @@ export default function Admin() {
 
               <div className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--info)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
-                  <span>Completed</span>
+                  <span>{t('admin.servedSettled')}</span>
                   <Check size={18} />
                 </div>
                 <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginTop: '0.5rem', color: '#fff' }}>
@@ -1953,11 +1953,11 @@ export default function Admin() {
             <div className="grid grid-cols-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
               <div className="glass-card" style={{ padding: '1.5rem' }}>
                 <h3 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <TrendingUp size={18} style={{ color: 'var(--secondary)' }} /> Sales By Category
+                  <TrendingUp size={18} style={{ color: 'var(--secondary)' }} /> {t('admin.salesByCategory')}
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                   {salesByCategory.length === 0 ? (
-                    <p className="text-muted text-center">No sales data available</p>
+                    <p className="text-muted text-center">{t('admin.noSalesData')}</p>
                   ) : (
                     salesByCategory.map(cat => {
                       const percentage = Math.min((cat.total / maxCategorySales) * 100, 100);
@@ -1979,7 +1979,7 @@ export default function Admin() {
 
               <div className="glass-card" style={{ padding: '1.5rem' }}>
                 <h3 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Calendar size={18} style={{ color: 'var(--primary)' }} /> Weekly Sales Trend
+                  <Calendar size={18} style={{ color: 'var(--primary)' }} /> {t('admin.weeklyTrend')}
                 </h3>
                 <div style={{ display: 'flex', height: '180px', alignItems: 'flex-end', justifyContent: 'space-between', gap: '0.5rem' }}>
                   {recentSalesData.map((day, idx) => {
@@ -1998,22 +1998,22 @@ export default function Admin() {
 
             {/* Recent Orders Table */}
             <div>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>📋 Recent Orders (Last 10)</h3>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>{t('admin.recentOrders')}</h3>
               <div className="glass-card" style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'rgba(255,255,255,0.02)' }}>
-                      <th style={{ padding: '1rem' }}>Order ID</th>
-                      <th style={{ padding: '1rem' }}>Time</th>
-                      <th style={{ padding: '1rem' }}>Items</th>
-                      <th style={{ padding: '1rem' }}>Status</th>
-                      <th style={{ padding: '1rem', textAlign: 'right' }}>Total</th>
+                      <th style={{ padding: '1rem' }}>{t('admin.orderId')}</th>
+                      <th style={{ padding: '1rem' }}>{t('admin.time')}</th>
+                      <th style={{ padding: '1rem' }}>{t('admin.items')}</th>
+                      <th style={{ padding: '1rem' }}>{t('admin.status')}</th>
+                      <th style={{ padding: '1rem', textAlign: 'right' }}>{t('admin.totalAmount')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredOrdersByDate.length === 0 ? (
                       <tr>
-                        <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No orders found.</td>
+                        <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>{t('admin.noOrdersFound')}</td>
                       </tr>
                     ) : (
                       [...filteredOrdersByDate].reverse().slice(0, 10).map(order => (
@@ -2040,30 +2040,30 @@ export default function Admin() {
         {/* ==================== CATEGORIES TAB ==================== */}
         {activeTab === 'categories' && (
           <div className="animate-fade-in">
-            <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>🏷️ Category Management</h1>
-            <p className="text-muted" style={{ marginBottom: '2rem' }}>Organize menu items with customized accent presentation colors</p>
+            <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>{t('admin.catManagementTitle')}</h1>
+            <p className="text-muted" style={{ marginBottom: '2rem' }}>{t('admin.catManagementDesc')}</p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '2rem' }}>
               <div className="glass-card" style={{ padding: '1.75rem', height: 'fit-content' }}>
-                <h3 style={{ marginBottom: '1.25rem' }}>{editingCategoryId ? 'Edit Category' : 'Create New Category'}</h3>
+                <h3 style={{ marginBottom: '1.25rem' }}>{editingCategoryId ? t('admin.editCategory') : t('admin.newCategory')}</h3>
                 <form onSubmit={handleAddCategory} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                   <div>
-                    <label className="text-sm text-muted">Category Name</label>
-                    <input type="text" placeholder="e.g., Shawarma Platters" value={newCategory.name} onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })} required />
+                    <label className="text-sm text-muted">{t('admin.categoryName')}</label>
+                    <input type="text" placeholder={t('admin.categoryPlaceholder')} value={newCategory.name} onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })} required />
                   </div>
                   <div>
-                    <label className="text-sm text-muted">Accent UI Color</label>
+                    <label className="text-sm text-muted">{t('admin.accentColor')}</label>
                     <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                       <input type="color" value={newCategory.color} onChange={(e) => setNewCategory({ ...newCategory, color: e.target.value })} style={{ width: '60px', height: '42px', cursor: 'pointer' }} />
                       <input type="text" value={newCategory.color} onChange={(e) => setNewCategory({ ...newCategory, color: e.target.value })} />
                     </div>
                   </div>
-                  <button type="submit" className="btn-primary" style={{ width: '100%' }}><Plus size={18} /> Add Category</button>
+                  <button type="submit" className="btn-primary" style={{ width: '100%' }}><Plus size={18} /> {t('admin.addCategoryBtn')}</button>
                 </form>
               </div>
 
               <div className="glass-card" style={{ padding: '1.75rem' }}>
-                <h3>Existing Categories</h3>
+                <h3>{t('admin.existingCategories')}</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '1rem' }}>
                   {categories.map(cat => (
                     <div key={cat.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', border: '1px solid var(--border)', borderLeft: `5px solid ${cat.color}`, borderRadius: '4px' }}>
@@ -2097,24 +2097,24 @@ export default function Admin() {
         {/* ==================== MENU ITEMS TAB ==================== */}
         {activeTab === 'menu' && (
           <div className="animate-fade-in">
-            <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>🍔 Menu Item Records</h1>
-            <p className="text-muted" style={{ marginBottom: '2rem' }}>Configure details, pricing, structural category and image thumbnails</p>
+            <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>{t('admin.menuMgmtTitle')}</h1>
+            <p className="text-muted" style={{ marginBottom: '2rem' }}>{t('admin.menuMgmtDesc')}</p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
               <div className="glass-card" style={{ padding: '1.75rem', height: 'fit-content' }}>
-                <h3>{editingItemId ? '📝 Edit Item Attributes' : '✨ Add New Menu Item'}</h3>
+                <h3>{editingItemId ? t('admin.editMenuItemTitle') : t('admin.addMenuItem')}</h3>
                 <form onSubmit={editingItemId ? handleSaveItem : handleAddItem} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '1rem' }}>
                   <div>
-                    <label className="text-sm text-muted">Item Name</label>
-                    <input type="text" placeholder="e.g., Spicy Chicken Shawarma" value={editingItemId ? editingItemData.name : newItem.name} onChange={(e) => editingItemId ? setEditingItemData({ ...editingItemData, name: e.target.value }) : setNewItem({ ...newItem, name: e.target.value })} required />
+                    <label className="text-sm text-muted">{t('admin.dishName')}</label>
+                    <input type="text" placeholder={t('admin.dishPlaceholder')} value={editingItemId ? editingItemData.name : newItem.name} onChange={(e) => editingItemId ? setEditingItemData({ ...editingItemData, name: e.target.value }) : setNewItem({ ...newItem, name: e.target.value })} required />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
-                      <label className="text-sm text-muted">Price ($)</label>
+                      <label className="text-sm text-muted">{t('admin.price')}</label>
                       <input type="number" step="0.01" value={editingItemId ? editingItemData.price : newItem.price} onChange={(e) => editingItemId ? setEditingItemData({ ...editingItemData, price: e.target.value }) : setNewItem({ ...newItem, price: e.target.value })} required />
                     </div>
                     <div>
-                      <label className="text-sm text-muted">Category Assignation</label>
+                      <label className="text-sm text-muted">{t('admin.category')}</label>
                       <select value={editingItemId ? editingItemData.categoryId : newItem.categoryId} onChange={(e) => editingItemId ? setEditingItemData({ ...editingItemData, categoryId: e.target.value }) : setNewItem({ ...newItem, categoryId: e.target.value })} required>
                         <option value="">Select category...</option>
                         {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -2122,11 +2122,11 @@ export default function Admin() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-muted">Image Asset URL</label>
+                    <label className="text-sm text-muted">{t('admin.imageUrl')}</label>
                     <input type="url" placeholder="https://images.unsplash.com/..." value={editingItemId ? editingItemData.image : newItem.image} onChange={(e) => editingItemId ? setEditingItemData({ ...editingItemData, image: e.target.value }) : setNewItem({ ...newItem, image: e.target.value })} />
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button type="submit" className="btn-primary" style={{ flex: 1 }}>{editingItemId ? 'Save Alterations' : 'Register Item'}</button>
+                    <button type="submit" className="btn-primary" style={{ flex: 1 }}>{editingItemId ? t('admin.updateDishBtn') : t('admin.addDishBtn')}</button>
                     {editingItemId && <button type="button" className="btn-outline" onClick={() => setEditingItemId(null)}>Cancel</button>}
                   </div>
                 </form>
@@ -2168,25 +2168,39 @@ export default function Admin() {
           <div className="animate-fade-in">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <div>
-                <h1 style={{ fontSize: '2rem' }}>🛍️ Master Orders Pipeline</h1>
-                <p className="text-muted">Fulfillment tracking, state routing and real-time dispatch monitoring</p>
+                <h1 style={{ fontSize: '2rem' }}>{t('admin.orderMgmtTitle')}</h1>
+                <p className="text-muted">{t('admin.orderMgmtDesc')}</p>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                {['all', 'pending', 'preparing', 'ready', 'completed', 'cancelled'].map(st => (
-                  <button key={st} className={`btn-outline text-xs ${orderStatusFilter === st ? 'btn-primary' : ''}`} style={{ padding: '0.4rem 0.75rem', textTransform: 'capitalize' }} onClick={() => setOrderStatusFilter(st)}>{st}</button>
-                ))}
-              </div>
+  {[
+    { value: 'all', label: t('admin.allStatuses') },
+    { value: 'pending', label: t('admin.statusPending') },
+    { value: 'preparing', label: t('admin.statusPreparing') },
+    { value: 'ready', label: t('admin.statusReady') },
+    { value: 'completed', label: t('admin.statusCompleted') },
+    { value: 'cancelled', label: t('admin.statusCancelled') },
+  ].map(st => (
+    <button
+      key={st.value}
+      className={`btn-outline text-xs ${orderStatusFilter === st.value ? 'btn-primary' : ''}`}
+      style={{ padding: '0.4rem 0.75rem' }}
+      onClick={() => setOrderStatusFilter(st.value)}
+    >
+      {st.label}
+    </button>
+  ))}
+</div>
             </div>
 
             {editingOrderId && (
               <div className="glass-card" style={{ padding: '1.5rem', marginBottom: '2rem', border: '1px solid var(--primary)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h3>🛠️ Modification Mode: Order #{editingOrderId}</h3>
+                  <h3>{t('admin.modMode')}{editingOrderId}</h3>
                   <button className="btn-outline" onClick={cancelEdit}><X size={14} /> Cancel</button>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
                   <div>
-                    <label className="text-xs text-muted">Quick Menu Additions:</label>
+                    <label className="text-xs text-muted">{t('admin.quickMenuAdd')}</label>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem', maxHeight: '150px', overflowY: 'auto', marginTop: '0.5rem' }}>
                       {menuItems.map(item => (
                         <button key={item.id} className="btn-outline" style={{ fontSize: '0.8rem', justifyContent: 'space-between' }} onClick={() => addToCart(item)}>
@@ -2196,7 +2210,7 @@ export default function Admin() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs text-muted">Basket Subtotal Matrix:</label>
+                    <label className="text-xs text-muted">{t('admin.basketSubtotal')}</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', maxHeight: '120px', overflowY: 'auto', margin: '0.5rem 0' }}>
                       {cart.map(cItem => (
                         <div key={cItem.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
@@ -2205,7 +2219,7 @@ export default function Admin() {
                         </div>
                       ))}
                     </div>
-                    <button className="btn-primary" style={{ width: '100%', fontSize: '0.85rem' }} onClick={saveOrder}>Commit Modifications</button>
+                    <button className="btn-primary" style={{ width: '100%', fontSize: '0.85rem' }} onClick={saveOrder}>{t('admin.commitModBtn')}</button>
                   </div>
                 </div>
               </div>
@@ -2215,17 +2229,17 @@ export default function Admin() {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    <th style={{ padding: '1rem' }}>ID</th>
-                    <th style={{ padding: '1rem' }}>Timestamp/Branch</th>
-                    <th style={{ padding: '1rem' }}>Basket Items</th>
-                    <th style={{ padding: '1rem' }}>Pricing Summary</th>
-                    <th style={{ padding: '1rem' }}>Workflow State Status</th>
-                    <th style={{ padding: '1rem', textAlign: 'right' }}>Actions</th>
+                    <th style={{ padding: '1rem' }}>{t('admin.orderId')}</th>
+                    <th style={{ padding: '1rem' }}>{t('admin.timeBranch')}</th>
+                    <th style={{ padding: '1rem' }}>{t('admin.basketItems')}</th>
+                    <th style={{ padding: '1rem' }}>{t('admin.pricingSummary')}</th>
+                    <th style={{ padding: '1rem' }}>{t('admin.workflowStatus')}</th>
+                    <th style={{ padding: '1rem', textAlign: 'right' }}>{t('admin.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredOrders.length === 0 ? (
-                    <tr><td colSpan={6} style={{ padding: '2rem', textAlign: 'center' }}>No matching records found.</td></tr>
+                    <tr><td colSpan={6} style={{ padding: '2rem', textAlign: 'center' }}>{t('admin.noOrdersFound')}</td></tr>
                   ) : filteredOrders.map(order => (
                     <tr key={order.id} style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ padding: '1rem', fontWeight: 'bold' }}>#{order.id}</td>
@@ -2241,11 +2255,11 @@ export default function Admin() {
                       </td>
                       <td style={{ padding: '1rem' }}>
                         <select className={`badge badge-${order.status}`} value={order.status} onChange={(e) => updateOrderStatus(order.id, e.target.value)}>
-                          <option value="pending">Pending</option>
-                          <option value="preparing">Preparing</option>
-                          <option value="ready">Ready</option>
-                          <option value="completed">Completed</option>
-                          <option value="cancelled">Cancelled</option>
+                          <option value="pending">{t('admin.statusPending')}</option>
+                          <option value="preparing">{t('admin.statusPreparing')}</option>
+                          <option value="ready">{t('admin.statusReady')}</option>
+                          <option value="completed">{t('admin.statusCompleted')}</option>
+                          <option value="cancelled">{t('admin.statusCancelled')}</option>
                         </select>
                       </td>
                       <td style={{ padding: '1rem', textAlign: 'right' }}>
@@ -2265,18 +2279,18 @@ export default function Admin() {
         {/* ==================== BRANCHES TAB ==================== */}
         {activeTab === 'branches' && (
           <div className="animate-fade-in">
-            <h1 style={{ fontSize: '2rem' }}>🏪 Corporate Branches</h1>
-            <p className="text-muted" style={{ marginBottom: '2rem' }}>Isolate workflow data metrics per region location setup</p>
+            <h1 style={{ fontSize: '2rem' }}>{t('admin.branchMgmtTitle')}</h1>
+            <p className="text-muted" style={{ marginBottom: '2rem' }}>{t('admin.branchMgmtDesc')}</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '2rem' }}>
               <div className="glass-card" style={{ padding: '1.75rem', height: 'fit-content' }}>
-                <h3>Deploy New Branch</h3>
+                <h3>{t('admin.createNewBranch')}</h3>
                 <form onSubmit={handleAddBranch} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-                  <input type="text" placeholder="e.g., Tagamoa Sector 5" value={newBranchName} onChange={(e) => setNewBranchName(e.target.value)} required />
-                  <button type="submit" className="btn-primary"><Plus size={16} /> Deploy Branch</button>
+                  <input type="text" placeholder={t('admin.branchPlaceholder')} value={newBranchName} onChange={(e) => setNewBranchName(e.target.value)} required />
+                  <button type="submit" className="btn-primary"><Plus size={16} /> {t('admin.createBranchBtn')}</button>
                 </form>
               </div>
               <div className="glass-card" style={{ padding: '1.75rem' }}>
-                <h3>Active Operational Scopes</h3>
+                <h3>{t('admin.operationalBranches')}</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
                   {branches.map(br => (
                     <div key={br} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', border: '1px solid var(--border)', borderRadius: '4px' }}>
@@ -2293,31 +2307,31 @@ export default function Admin() {
         {/* ==================== USERS TAB ==================== */}
         {activeTab === 'users' && (
           <div className="animate-fade-in">
-            <h1 style={{ fontSize: '2rem' }}>👥 System Operator Accounts</h1>
-            <p className="text-muted" style={{ marginBottom: '2rem' }}>Manage role privileges bound to {currentBranch}</p>
+            <h1 style={{ fontSize: '2rem' }}>{t('admin.usersMgmtTitle')}</h1>
+            <p className="text-muted" style={{ marginBottom: '2rem' }}>{t('admin.usersMgmtDesc')} {currentBranch}</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.75fr', gap: '2rem' }}>
               <div className="glass-card" style={{ padding: '1.75rem', height: 'fit-content' }}>
-                <h3>{editingUserId ? '🔒 Alter Account Details' : '👤 Provision Staff Account'}</h3>
+                <h3>{editingUserId ? t('admin.alterAccount') : t('admin.provisionAccount')}</h3>
                 <form onSubmit={(e) => { e.preventDefault(); editingUserId ? saveEditUser() : handleAddUser(e); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-                  <input type="text" placeholder="Profile Name" value={editingUserId ? editingUserData.name : newUserName} onChange={(e) => editingUserId ? setEditingUserData({ ...editingUserData, name: e.target.value }) : setNewUserName(e.target.value)} required />
-                  <input type="email" placeholder="Email Handle" value={editingUserId ? editingUserData.email : newUserEmail} onChange={(e) => editingUserId ? setEditingUserData({ ...editingUserData, email: e.target.value }) : setNewUserEmail(e.target.value)} required />
+                  <input type="text" placeholder={t('admin.profileName')} value={editingUserId ? editingUserData.name : newUserName} onChange={(e) => editingUserId ? setEditingUserData({ ...editingUserData, name: e.target.value }) : setNewUserName(e.target.value)} required />
+                  <input type="email" placeholder={t('admin.emailHandle')} value={editingUserId ? editingUserData.email : newUserEmail} onChange={(e) => editingUserId ? setEditingUserData({ ...editingUserData, email: e.target.value }) : setNewUserEmail(e.target.value)} required />
                   <select value={editingUserId ? editingUserData.role : newUserRole} onChange={(e) => editingUserId ? setEditingUserData({ ...editingUserData, role: e.target.value }) : setNewUserRole(e.target.value)}>
-                    <option value="cashier">Cashier Operator</option>
-                    <option value="kitchen">Kitchen Manager</option>
-                    <option value="admin">Global Administrator</option>
+                    <option value="cashier">{t('admin.cashierOp')}</option>
+                    <option value="kitchen">{t('admin.kitchenMgr')}</option>
+                    <option value="admin">{t('admin.globalAdmin')}</option>
                   </select>
                   {editingUserId && (
                     <select value={editingUserData.branch} onChange={(e) => setEditingUserData({ ...editingUserData, branch: e.target.value })}>
                       {branches.map(b => <option key={b} value={b}>{b}</option>)}
                     </select>
                   )}
-                  <button type="submit" className="btn-primary">Save Operator Card</button>
+                  <button type="submit" className="btn-primary">{t('admin.saveOperatorCard')}</button>
                 </form>
               </div>
               <div className="glass-card" style={{ padding: '1.75rem' }}>
-                <h3>Assigned Operators ({currentBranch})</h3>
+                <h3>{t('admin.assignedOperators')} ({currentBranch})</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
-                  {filteredUsers.length === 0 ? <p className="text-muted text-xs italic">No operator accounts assigned here.</p> : filteredUsers.map(user => (
+                  {filteredUsers.length === 0 ? <p className="text-muted text-xs italic">{t('admin.noOperators')}</p> : filteredUsers.map(user => (
                     <div key={user.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', border: '1px solid var(--border)', borderRadius: '4px' }}>
                       <div>
                         <strong>{user.name}</strong> <span className="text-xs text-muted">({user.role})</span>

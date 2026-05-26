@@ -416,7 +416,7 @@ import { ShoppingCart, ShoppingBag, LogOut, Trash2, Plus, Minus, User, Coffee } 
 
 export default function POS() {
   const {
-    menuItems, categories, currentBranch, addOrder, setUserRole, language, setLang
+    menuItems, categories, currentBranch, addOrder, setUserRole, language, setLang, t
   } = useApp();
   const navigate = useNavigate();
 
@@ -465,7 +465,7 @@ export default function POS() {
 
   const handleCheckout = () => {
     if (cart.length === 0) {
-      alert('Cannot process checkout workflow with an empty active ticket.');
+      alert(t('pos.emptyError'));
       return;
     }
 
@@ -482,7 +482,7 @@ export default function POS() {
     };
 
     addOrder(orderPayload);
-    alert(`Order #${orderPayload.id} Dispatched to Kitchen Pipeline Successfully!`);
+    alert(`${t('admin.orderId')} #${orderPayload.id} ${t('pos.successOrder')}`);
     clearCart();
   };
 
@@ -501,9 +501,9 @@ export default function POS() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <div>
             <h1 style={{ fontSize: '1.75rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Coffee style={{ color: 'var(--primary)' }} /> Counter Cashier POS Terminal
+              <Coffee style={{ color: 'var(--primary)' }} /> {t('pos.title')}
             </h1>
-            <p className="text-xs text-muted" style={{ margin: '0.25rem 0 0 0' }}>Fulfillment Engine Context Scope: <strong>{currentBranch}</strong></p>
+            <p className="text-xs text-muted" style={{ margin: '0.25rem 0 0 0' }}>{t('pos.fulfillmentScope')} <strong>{currentBranch}</strong></p>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button className="btn-secondary" style={{ fontSize: '0.85rem', padding: '0.4rem 0.85rem' }} onClick={() => setLang(language === 'en' ? 'ar' : 'en')}>
@@ -522,7 +522,7 @@ export default function POS() {
             style={{ whiteSpace: 'nowrap', padding: '0.5rem 1.25rem' }}
             onClick={() => setActiveCategory('all')}
           >
-            All Items
+            {t('pos.allCategories')}
           </button>
           {categories.map(cat => (
             <button
@@ -557,7 +557,7 @@ export default function POS() {
               </div>
               <div style={{ padding: '0.85rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, lineHeight: '1.3' }}>{item.name}</h3>
-                <span className="text-xs text-muted" style={{ marginTop: '0.5rem', display: 'block' }}>Click to append to ticket</span>
+                <span className="text-xs text-muted" style={{ marginTop: '0.5rem', display: 'block' }}>{t('pos.clickToAppend')}</span>
               </div>
             </div>
           ))}
@@ -571,13 +571,13 @@ export default function POS() {
         <div style={{ padding: '1.25rem', borderBottom: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)' }}>
             <ShoppingCart size={20} />
-            <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Active Checkout Ticket</h2>
+            <h2 style={{ fontSize: '1.2rem', margin: 0 }}>{t('pos.cart')}</h2>
           </div>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
             <User size={14} style={{ position: 'absolute', left: '0.75rem', color: 'var(--text-muted)' }} />
             <input
               type="text"
-              placeholder="Guest Identification Name..."
+              placeholder={t('pos.guestPlaceholder')}
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               style={{ paddingLeft: '2.25rem', fontSize: '0.9rem', width: '100%' }}
@@ -590,7 +590,7 @@ export default function POS() {
           {cart.length === 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)', gap: '0.5rem' }}>
               <ShoppingBag size={32} strokeWidth={1.5} />
-              <p style={{ fontSize: '0.85rem', margin: 0 }} className="italic">Active transaction receipt manifest is empty</p>
+              <p style={{ fontSize: '0.85rem', margin: 0 }} className="italic">{t('pos.cartEmptyManifest')}</p>
             </div>
           ) : (
             cart.map(cItem => (
@@ -623,25 +623,25 @@ export default function POS() {
         <div style={{ padding: '1.25rem', borderTop: '1px solid var(--border)', backgroundColor: 'rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.85rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span className="text-muted">Subtotal Gross Basket</span>
+              <span className="text-muted">{t('pos.subtotal')}</span>
               <span>${baseSubtotal.toFixed(2)}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span className="text-muted">Statutory Sales VAT Tax (14%)</span>
+              <span className="text-muted">{t('pos.vat')}</span>
               <span>${vatAmount.toFixed(2)}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: '0.5rem', marginTop: '0.25rem', fontSize: '1.1rem', fontWeight: 'bold' }}>
-              <span>Grand Total</span>
+              <span>{t('pos.total')}</span>
               <span style={{ color: 'var(--success)' }}>${grandTotal.toFixed(2)}</span>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.5rem', marginTop: '0.25rem' }}>
             <button className="btn-outline" style={{ borderColor: 'var(--danger)', color: 'var(--danger)', width: '100%' }} onClick={clearCart} disabled={cart.length === 0}>
-              Clear
+              {t('pos.clearCart')}
             </button>
             <button className="btn-primary" style={{ width: '100%', fontWeight: 'bold' }} onClick={handleCheckout} disabled={cart.length === 0}>
-              Process Ticket
+              {t('pos.checkout')}
             </button>
           </div>
         </div>

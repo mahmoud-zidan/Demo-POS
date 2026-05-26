@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, CheckSquare, Square, Volume2, LogOut, CheckCircle2, ChevronRight, Flame } from 'lucide-react';
 
 export default function Kitchen() {
-  const { setUserRole, orders, updateOrderStatus, categories } = useApp();
+  const { setUserRole, orders, updateOrderStatus, categories, t } = useApp();
   const navigate = useNavigate();
 
   // Active columns filter
@@ -182,17 +182,17 @@ export default function Kitchen() {
         <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)' }}>
           {order.status === 'pending' && (
             <button className="btn-primary" style={{ width: '100%', padding: '0.6rem' }} onClick={() => updateOrderStatus(order.id, 'preparing')}>
-              Start Preparing <ChevronRight size={16} />
+              {t('kitchen.startPrep')} <ChevronRight size={16} />
             </button>
           )}
           {order.status === 'preparing' && (
             <button className="btn-warning" style={{ width: '100%', padding: '0.6rem', color: 'var(--text-inverse)' }} onClick={() => updateOrderStatus(order.id, 'ready')}>
-              Mark Ready <ChevronRight size={16} />
+              {t('kitchen.markReady')} <ChevronRight size={16} />
             </button>
           )}
           {order.status === 'ready' && (
             <button className="btn-success" style={{ width: '100%', padding: '0.6rem' }} onClick={() => updateOrderStatus(order.id, 'completed')}>
-              Complete Order <CheckCircle2 size={16} />
+              {t('kitchen.complete')} <CheckCircle2 size={16} />
             </button>
           )}
         </div>
@@ -210,8 +210,8 @@ export default function Kitchen() {
             <Flame size={20} className="animate-pulse" />
           </div>
           <div>
-            <h2 style={{ fontSize: '1.25rem', margin: 0 }}>بيت الشاورما - Kitchen KDS</h2>
-            <span className="text-xs text-muted">Active tickets: <strong>{activeOrders.length}</strong></span>
+            <h2 style={{ fontSize: '1.25rem', margin: 0 }}>{t('kitchen.title')}</h2>
+            <span className="text-xs text-muted">{t('kitchen.activeTickets')} <strong>{activeOrders.length}</strong></span>
           </div>
         </div>
 
@@ -238,11 +238,11 @@ export default function Kitchen() {
             }}
             style={{ fontSize: '0.85rem', padding: '0.4rem 0.85rem' }}
           >
-            <Volume2 size={16} /> {audioEnabled ? 'Sound On' : 'Muted'}
+            <Volume2 size={16} /> {audioEnabled ? t('kitchen.soundOn') : t('kitchen.muted')}
           </button>
           
           <button className="btn-outline" style={{ borderColor: 'var(--danger)', color: 'var(--danger)', padding: '0.4rem 0.85rem' }} onClick={handleLogout}>
-            <LogOut size={16} /> Logout
+            <LogOut size={16} /> {t('kitchen.logout')}
           </button>
         </div>
       </div>
@@ -254,12 +254,12 @@ export default function Kitchen() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.5rem', borderBottom: '3px solid var(--danger)' }}>
             <div style={{ width: '10px', height: '10px', backgroundColor: 'var(--danger)', borderRadius: '50%' }}></div>
-            <h3 style={{ fontSize: '1.1rem', margin: 0 }}>NEW ORDERS ({pendingOrders.length})</h3>
+            <h3 style={{ fontSize: '1.1rem', margin: 0 }}>{t('kitchen.pending')} ({pendingOrders.length})</h3>
           </div>
           <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', paddingRight: '0.25rem' }}>
             {pendingOrders.length === 0 ? (
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', opacity: 0.35 }}>
-                <p className="text-muted text-sm text-center">No new tickets</p>
+                <p className="text-muted text-sm text-center">{t('kitchen.noNewTickets')}</p>
               </div>
             ) : (
               pendingOrders.map(order => renderOrderCard(order))
@@ -271,12 +271,12 @@ export default function Kitchen() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.5rem', borderBottom: '3px solid var(--warning)' }}>
             <div style={{ width: '10px', height: '10px', backgroundColor: 'var(--warning)', borderRadius: '50%' }}></div>
-            <h3 style={{ fontSize: '1.1rem', margin: 0 }}>IN PREPARATION ({preparingOrders.length})</h3>
+            <h3 style={{ fontSize: '1.1rem', margin: 0 }}>{t('kitchen.preparing')} ({preparingOrders.length})</h3>
           </div>
           <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', paddingRight: '0.25rem' }}>
             {preparingOrders.length === 0 ? (
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', opacity: 0.35 }}>
-                <p className="text-muted text-sm text-center">No active preparation</p>
+                <p className="text-muted text-sm text-center">{t('kitchen.noActivePrep')}</p>
               </div>
             ) : (
               preparingOrders.map(order => renderOrderCard(order))
@@ -288,12 +288,12 @@ export default function Kitchen() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.5rem', borderBottom: '3px solid var(--success)' }}>
             <div style={{ width: '10px', height: '10px', backgroundColor: 'var(--success)', borderRadius: '50%' }}></div>
-            <h3 style={{ fontSize: '1.1rem', margin: 0 }}>READY FOR PICKUP ({readyOrders.length})</h3>
+            <h3 style={{ fontSize: '1.1rem', margin: 0 }}>{t('kitchen.ready')} ({readyOrders.length})</h3>
           </div>
           <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', paddingRight: '0.25rem' }}>
             {readyOrders.length === 0 ? (
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', opacity: 0.35 }}>
-                <p className="text-muted text-sm text-center">No ready tickets</p>
+                <p className="text-muted text-sm text-center">{t('kitchen.noReadyTickets')}</p>
               </div>
             ) : (
               readyOrders.map(order => renderOrderCard(order))
@@ -308,7 +308,7 @@ export default function Kitchen() {
         <div style={{ padding: '1rem 2rem', borderTop: '1px solid var(--border)', backgroundColor: 'rgba(19, 27, 46, 0.3)', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
             <div style={{ width: '8px', height: '8px', backgroundColor: 'var(--primary)', borderRadius: '50%' }}></div>
-            <h4 style={{ fontSize: '0.85rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>Recently Served Tickets</h4>
+            <h4 style={{ fontSize: '0.85rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>{t('kitchen.recentlyServed')}</h4>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
             {completedOrders.map(order => (
