@@ -32,6 +32,12 @@ service cloud.firestore {
     match /orders/{document=**} {
       allow read, write;
     }
+    match /categories/{document=**} {
+      allow read, write;
+    }
+    match /branches/{document=**} {
+      allow read, write;
+    }
     // Block all other collections by default
     match /{document=**} {
       allow read, write: if false;

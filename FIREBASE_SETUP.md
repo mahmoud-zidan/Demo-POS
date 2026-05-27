@@ -59,6 +59,12 @@ service cloud.firestore {
     match /orders/{orderId} {
       allow read, write: if request.auth != null;
     }
+    match /categories/{categoryId} {
+      allow read, write: if request.auth != null;
+    }
+    match /branches/{branchId} {
+      allow read, write: if request.auth != null;
+    }
   }
 }
 ```
