@@ -55,6 +55,12 @@ export const AppProvider = ({ children }) => {
           } else {
             const savedBranches = localStorage.getItem('pos_branches');
             branchList = savedBranches ? JSON.parse(savedBranches) : [];
+            // Seed local branches to Firestore
+            if (branchList.length > 0) {
+              for (const bName of branchList) {
+                await fb.addBranchFirestore({ name: bName, createdAt: new Date().toISOString() });
+              }
+            }
           }
         } catch (err) {
           console.error('Firestore fetchBranches failed', err);
@@ -66,24 +72,50 @@ export const AppProvider = ({ children }) => {
         branchList = savedBranches ? JSON.parse(savedBranches) : [];
       }
       setBranches(branchList);
-      // Ensure a current branch is selected
-      if (!currentBranch && branchList.length > 0) {
-        setCurrentBranch(branchList[0]);
-        localStorage.setItem('pos_branch', branchList[0]);
+
+      // Determine active branch for this context execution
+      let activeBranch = currentBranch;
+      if (!activeBranch && branchList.length > 0) {
+        activeBranch = branchList[0];
+        setCurrentBranch(activeBranch);
+        localStorage.setItem('pos_branch', activeBranch);
       }
 
-      const branchKey = currentBranch ? `${currentBranch}_` : '';
+      // If no branches exist, seed a default 'Main Branch'
+      if (branchList.length === 0) {
+        activeBranch = 'Main Branch';
+        setBranches([activeBranch]);
+        localStorage.setItem('pos_branches', JSON.stringify([activeBranch]));
+        setCurrentBranch(activeBranch);
+        localStorage.setItem('pos_branch', activeBranch);
+        if (USE_FIRESTORE) {
+          try {
+            await fb.addBranchFirestore({ name: activeBranch, createdAt: new Date().toISOString() });
+          } catch (err) {
+            console.error('Failed to seed default branch to Firestore', err);
+          }
+        }
+      }
+
+      const branchKey = activeBranch ? `${activeBranch}_` : '';
 
       // Load orders: prefer Firestore when enabled, fallback to localStorage
       if (USE_FIRESTORE) {
         try {
-          const fbOrders = await fb.fetchOrders(currentBranch || null);
+          const fbOrders = await fb.fetchOrders(activeBranch || null);
           if (fbOrders && fbOrders.length > 0) {
             setOrders(fbOrders);
             localStorage.setItem(`pos_orders_${branchKey}`, JSON.stringify(fbOrders));
           } else {
             const savedOrders = localStorage.getItem(`pos_orders_${branchKey}`);
-            setOrders(savedOrders ? JSON.parse(savedOrders) : []);
+            const localOrders = savedOrders ? JSON.parse(savedOrders) : [];
+            setOrders(localOrders);
+            // Migrate local orders to Firestore
+            if (localOrders.length > 0) {
+              for (const ord of localOrders) {
+                await fb.addOrderFirestore({ ...ord, branch: ord.branch || activeBranch || null });
+              }
+            }
           }
         } catch (err) {
           console.error('Firestore fetchOrders failed', err);
@@ -98,20 +130,25 @@ export const AppProvider = ({ children }) => {
       // Load categories: prefer Firestore when enabled, fallback to localStorage
       if (USE_FIRESTORE) {
         try {
-          const fbCategories = await fb.fetchCategories(currentBranch || null);
+          const fbCategories = await fb.fetchCategories(activeBranch || null);
           if (fbCategories && fbCategories.length > 0) {
             setCategories(fbCategories);
             localStorage.setItem(`pos_categories_${branchKey}`, JSON.stringify(fbCategories));
           } else {
             const savedCategories = localStorage.getItem(`pos_categories_${branchKey}`);
             if (savedCategories) {
-              setCategories(JSON.parse(savedCategories));
+              const parsed = JSON.parse(savedCategories);
+              setCategories(parsed);
+              // Migrate local categories to Firestore
+              for (const cat of parsed) {
+                await fb.addCategoryFirestore({ ...cat, branch: activeBranch || null });
+              }
             } else {
               setCategories(defaultCategories);
               localStorage.setItem(`pos_categories_${branchKey}`, JSON.stringify(defaultCategories));
               // Seed defaults to Firestore
               for (const cat of defaultCategories) {
-                await fb.addCategoryFirestore({ ...cat, branch: currentBranch || null });
+                await fb.addCategoryFirestore({ ...cat, branch: activeBranch || null });
               }
             }
           }
@@ -149,21 +186,27 @@ export const AppProvider = ({ children }) => {
           const fbUsers = await fb.fetchUsers();
           if (fbUsers && fbUsers.length > 0) {
             setUsers(fbUsers);
-            // Mirror to localStorage to keep offline behavior
             localStorage.setItem('pos_users', JSON.stringify(fbUsers));
           } else {
             const savedUsers = localStorage.getItem('pos_users');
-            if (savedUsers) setUsers(JSON.parse(savedUsers));
-            else {
+            if (savedUsers) {
+              const parsedUsers = JSON.parse(savedUsers);
+              setUsers(parsedUsers);
+              // Migrate local users to Firestore
+              for (const usr of parsedUsers) {
+                await fb.addUserFirestore({ ...usr, branch: usr.branch || activeBranch || 'Main Branch' });
+              }
+            } else {
               const defaultAdmin = [{
-                id: Date.now(),
+                id: Date.now().toString(),
                 name: 'atito',
                 email: 'admin@pos.com',
                 role: 'admin',
-                branch: currentBranch || 'Main Branch'
+                branch: activeBranch || 'Main Branch'
               }];
               setUsers(defaultAdmin);
               localStorage.setItem('pos_users', JSON.stringify(defaultAdmin));
+              await fb.addUserFirestore(defaultAdmin[0]);
             }
           }
         } catch (err) {
@@ -176,11 +219,11 @@ export const AppProvider = ({ children }) => {
         if (savedUsers) setUsers(JSON.parse(savedUsers));
         else {
           const defaultAdmin = [{
-            id: Date.now(),
+            id: Date.now().toString(),
             name: 'atito',
             email: 'admin@pos.com',
             role: 'admin',
-            branch: currentBranch || 'Main Branch'
+            branch: activeBranch || 'Main Branch'
           }];
           setUsers(defaultAdmin);
           localStorage.setItem('pos_users', JSON.stringify(defaultAdmin));
