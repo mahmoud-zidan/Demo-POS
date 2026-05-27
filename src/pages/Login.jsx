@@ -18,7 +18,8 @@ export default function Login() {
   const {
     setUserRole,
     users,
-    t
+    t,
+    branches
   } = useApp();
 
   // =========================================
@@ -54,7 +55,9 @@ export default function Login() {
 
         console.log('DEFAULT ADMIN LOGIN');
 
-        setUserRole('admin', null);
+        // If branches exist, set admin to the first branch so users are visible
+        const adminBranch = branches && branches.length > 0 ? branches[0] : null;
+        setUserRole('admin', adminBranch);
 
         navigate('/admin');
 

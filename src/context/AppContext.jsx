@@ -1,5 +1,9 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import * as fb from '../lib/firestoreHelpers';
+
+// Enable Firestore integration by setting VITE_USE_FIRESTORE=true in your env (keeps localStorage fallback)
+const USE_FIRESTORE = import.meta.env.VITE_USE_FIRESTORE === 'true';
 
 const AppContext = createContext();
 
@@ -39,8 +43,8 @@ export const AppProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadData = () => {
-      // Load branches
+    const loadData = async () => {
+      // Load branches from localStorage (primary) — Firestore branches not used yet
       const savedBranches = localStorage.getItem('pos_branches');
       const branchList = savedBranches ? JSON.parse(savedBranches) : [];
       setBranches(branchList);
@@ -51,12 +55,28 @@ export const AppProvider = ({ children }) => {
       }
 
       const branchKey = currentBranch ? `${currentBranch}_` : '';
-      // Load orders for current branch
-      const savedOrders = localStorage.getItem(`pos_orders_${branchKey}`);
-      if (savedOrders) setOrders(JSON.parse(savedOrders));
-      else setOrders([]);
 
-      // Load categories for current branch
+      // Load orders: prefer Firestore when enabled, fallback to localStorage
+      if (USE_FIRESTORE) {
+        try {
+          const fbOrders = await fb.fetchOrders(currentBranch || null);
+          if (fbOrders && fbOrders.length > 0) {
+            setOrders(fbOrders);
+          } else {
+            const savedOrders = localStorage.getItem(`pos_orders_${branchKey}`);
+            setOrders(savedOrders ? JSON.parse(savedOrders) : []);
+          }
+        } catch (err) {
+          console.error('Firestore fetchOrders failed', err);
+          const savedOrders = localStorage.getItem(`pos_orders_${branchKey}`);
+          setOrders(savedOrders ? JSON.parse(savedOrders) : []);
+        }
+      } else {
+        const savedOrders = localStorage.getItem(`pos_orders_${branchKey}`);
+        setOrders(savedOrders ? JSON.parse(savedOrders) : []);
+      }
+
+      // Load categories/menu (local only for now)
       const savedCategories = localStorage.getItem(`pos_categories_${branchKey}`);
       if (savedCategories) {
         setCategories(JSON.parse(savedCategories));
@@ -65,7 +85,6 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem(`pos_categories_${branchKey}`, JSON.stringify(defaultCategories));
       }
 
-      // Load menu for current branch
       const savedMenu = localStorage.getItem(`pos_menu_${branchKey}`);
       if (savedMenu) {
         setMenuItems(JSON.parse(savedMenu));
@@ -74,32 +93,59 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem(`pos_menu_${branchKey}`, JSON.stringify(defaultMenu));
       }
 
-      // Load users globally
-      const savedUsers = localStorage.getItem('pos_users');
-      if (savedUsers) {
-        setUsers(JSON.parse(savedUsers));
+      // Load users: prefer Firestore when enabled, fallback to localStorage
+      if (USE_FIRESTORE) {
+        try {
+          const fbUsers = await fb.fetchUsers();
+          if (fbUsers && fbUsers.length > 0) {
+            setUsers(fbUsers);
+            // Mirror to localStorage to keep offline behavior
+            localStorage.setItem('pos_users', JSON.stringify(fbUsers));
+          } else {
+            const savedUsers = localStorage.getItem('pos_users');
+            if (savedUsers) setUsers(JSON.parse(savedUsers));
+            else {
+              const defaultAdmin = [{
+                id: Date.now(),
+                name: 'atito',
+                email: 'admin@pos.com',
+                role: 'admin',
+                branch: currentBranch || 'Main Branch'
+              }];
+              setUsers(defaultAdmin);
+              localStorage.setItem('pos_users', JSON.stringify(defaultAdmin));
+            }
+          }
+        } catch (err) {
+          console.error('Firestore fetchUsers failed', err);
+          const savedUsers = localStorage.getItem('pos_users');
+          if (savedUsers) setUsers(JSON.parse(savedUsers));
+        }
       } else {
-        const defaultAdmin = [{
-          id: Date.now(),
-          name: 'atito',
-          email: 'admin@pos.com',
-          role: 'admin',
-          branch: currentBranch || 'Main Branch'
-        }];
-        setUsers(defaultAdmin);
-        localStorage.setItem('pos_users', JSON.stringify(defaultAdmin));
+        const savedUsers = localStorage.getItem('pos_users');
+        if (savedUsers) setUsers(JSON.parse(savedUsers));
+        else {
+          const defaultAdmin = [{
+            id: Date.now(),
+            name: 'atito',
+            email: 'admin@pos.com',
+            role: 'admin',
+            branch: currentBranch || 'Main Branch'
+          }];
+          setUsers(defaultAdmin);
+          localStorage.setItem('pos_users', JSON.stringify(defaultAdmin));
+        }
       }
     };
-    
-    loadData();
-    setLoading(false);
+
+    loadData().then(() => setLoading(false));
 
     const handleStorageChange = (e) => {
       if (
-        e.key.startsWith('pos_orders') || 
+        e.key && (e.key.startsWith('pos_orders') || 
         e.key.startsWith('pos_menu') || 
         e.key.startsWith('pos_categories') || 
-        e.key === 'pos_users'
+        e.key === 'pos_users')
       ) {
         loadData();
       }
@@ -128,11 +174,66 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const persistOrderToFirestore = async (order) => {
+    if (!USE_FIRESTORE) return;
+    try {
+      await fb.addOrderFirestore(order);
+    } catch (err) {
+      console.error('Failed to persist order to Firestore:', err);
+    }
+  };
+
+  const persistUserToFirestore = async (user) => {
+    if (!USE_FIRESTORE) return;
+    try {
+      await fb.addUserFirestore(user);
+    } catch (err) {
+      console.error('Failed to persist user to Firestore:', err);
+    }
+  };
+
+  const persistUserUpdateToFirestore = async (id, data) => {
+    if (!USE_FIRESTORE) return;
+    try {
+      await fb.updateUserFirestore(id, data);
+    } catch (err) {
+      console.error('Failed to update user in Firestore:', err);
+    }
+  };
+
+  const persistUserDeleteToFirestore = async (id) => {
+    if (!USE_FIRESTORE) return;
+    try {
+      await fb.deleteUserFirestore(id);
+    } catch (err) {
+      console.error('Failed to delete user from Firestore:', err);
+    }
+  };
+
+  const persistOrderUpdateToFirestore = async (id, data) => {
+    if (!USE_FIRESTORE) return;
+    try {
+      await fb.updateOrderFirestore(id, data);
+    } catch (err) {
+      console.error('Failed to update order in Firestore:', err);
+    }
+  };
+
+  const persistOrderDeleteToFirestore = async (id) => {
+    if (!USE_FIRESTORE) return;
+    try {
+      await fb.deleteOrderFirestore(id);
+    } catch (err) {
+      console.error('Failed to delete order from Firestore:', err);
+    }
+  };
+
   const addOrder = (order) => {
     const branchKey = currentBranch ? `${currentBranch}_` : '';
     const newOrders = [...orders, order];
     setOrders(newOrders);
     localStorage.setItem(`pos_orders_${branchKey}`, JSON.stringify(newOrders));
+    persistOrderToFirestore(order);
   };
 
   const updateOrderStatus = (id, newStatus) => {
@@ -140,6 +241,7 @@ export const AppProvider = ({ children }) => {
     const newOrders = orders.map(o => o.id === id ? { ...o, status: newStatus } : o);
     setOrders(newOrders);
     localStorage.setItem(`pos_orders_${branchKey}`, JSON.stringify(newOrders));
+    persistOrderUpdateToFirestore(id, { status: newStatus });
   };
 
   const deleteOrder = (id) => {
@@ -147,6 +249,7 @@ export const AppProvider = ({ children }) => {
     const newOrders = orders.filter(o => o.id !== id);
     setOrders(newOrders);
     localStorage.setItem(`pos_orders_${branchKey}`, JSON.stringify(newOrders));
+    persistOrderDeleteToFirestore(id);
   };
 
   const editOrder = (id, updatedData) => {
@@ -154,6 +257,7 @@ export const AppProvider = ({ children }) => {
     const newOrders = orders.map(o => o.id === id ? { ...o, ...updatedData } : o);
     setOrders(newOrders);
     localStorage.setItem(`pos_orders_${branchKey}`, JSON.stringify(newOrders));
+    persistOrderUpdateToFirestore(id, updatedData);
   };
 
   const addMenuItem = (item) => {
@@ -272,13 +376,22 @@ export const AppProvider = ({ children }) => {
     addUser: (user) => {
       const normalizedUser = {
         ...user,
-        id: Date.now(),
+        id: Date.now().toString(),
         email: (user.email || '').trim().toLowerCase(),
         role: (user.role || 'cashier').trim().toLowerCase(),
+        branch: user.branch || currentBranch || 'Main Branch',
       };
       const newUsers = [...users, normalizedUser];
+      // Ensure branch is recorded in branches list
+      const b = normalizedUser.branch;
+      if (b && !branches.includes(b)) {
+        const newBranches = [...branches, b];
+        setBranches(newBranches);
+        localStorage.setItem('pos_branches', JSON.stringify(newBranches));
+      }
       setUsers(newUsers);
       localStorage.setItem('pos_users', JSON.stringify(newUsers));
+      persistUserToFirestore(normalizedUser);
     },
     editUser: (id, data) => {
       const normalizedData = {
@@ -289,11 +402,13 @@ export const AppProvider = ({ children }) => {
       const newUsers = users.map(u => u.id === id ? { ...u, ...normalizedData } : u);
       setUsers(newUsers);
       localStorage.setItem('pos_users', JSON.stringify(newUsers));
+      persistUserUpdateToFirestore(id, normalizedData);
     },
     deleteUser: (id) => {
       const newUsers = users.filter(u => u.id !== id);
       setUsers(newUsers);
       localStorage.setItem('pos_users', JSON.stringify(newUsers));
+      persistUserDeleteToFirestore(id);
     },
   };
 
