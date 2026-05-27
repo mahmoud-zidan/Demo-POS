@@ -3,8 +3,8 @@ import Login from './pages/Login';
 import Admin from './pages/Admin';
 import POS from './pages/POS';
 import Kitchen from './pages/Kitchen';
-import { AppProvider } from './context/AppContext';
-
+import { Analytics } from "@vercel/analytics/react";
+import { AppProvider } from "./context/AppContext";
 function App() {
   return (
     <AppProvider>
@@ -17,6 +17,7 @@ function App() {
           <Route path="/kitchen" element={<Kitchen />} />
         </Routes>
       </BrowserRouter>
+      <Analytics />
     </AppProvider>
   );
 }
