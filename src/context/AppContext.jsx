@@ -44,9 +44,27 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     const loadData = async () => {
-      // Load branches from localStorage (primary) — Firestore branches not used yet
-      const savedBranches = localStorage.getItem('pos_branches');
-      const branchList = savedBranches ? JSON.parse(savedBranches) : [];
+      // Load branches: prefer Firestore when enabled, fallback to localStorage
+      let branchList = [];
+      if (USE_FIRESTORE) {
+        try {
+          const fbBranches = await fb.fetchBranches();
+          if (fbBranches && fbBranches.length > 0) {
+            branchList = fbBranches.map(b => b.name);
+            localStorage.setItem('pos_branches', JSON.stringify(branchList));
+          } else {
+            const savedBranches = localStorage.getItem('pos_branches');
+            branchList = savedBranches ? JSON.parse(savedBranches) : [];
+          }
+        } catch (err) {
+          console.error('Firestore fetchBranches failed', err);
+          const savedBranches = localStorage.getItem('pos_branches');
+          branchList = savedBranches ? JSON.parse(savedBranches) : [];
+        }
+      } else {
+        const savedBranches = localStorage.getItem('pos_branches');
+        branchList = savedBranches ? JSON.parse(savedBranches) : [];
+      }
       setBranches(branchList);
       // Ensure a current branch is selected
       if (!currentBranch && branchList.length > 0) {
@@ -62,6 +80,7 @@ export const AppProvider = ({ children }) => {
           const fbOrders = await fb.fetchOrders(currentBranch || null);
           if (fbOrders && fbOrders.length > 0) {
             setOrders(fbOrders);
+            localStorage.setItem(`pos_orders_${branchKey}`, JSON.stringify(fbOrders));
           } else {
             const savedOrders = localStorage.getItem(`pos_orders_${branchKey}`);
             setOrders(savedOrders ? JSON.parse(savedOrders) : []);
@@ -76,13 +95,44 @@ export const AppProvider = ({ children }) => {
         setOrders(savedOrders ? JSON.parse(savedOrders) : []);
       }
 
-      // Load categories/menu (local only for now)
-      const savedCategories = localStorage.getItem(`pos_categories_${branchKey}`);
-      if (savedCategories) {
-        setCategories(JSON.parse(savedCategories));
+      // Load categories: prefer Firestore when enabled, fallback to localStorage
+      if (USE_FIRESTORE) {
+        try {
+          const fbCategories = await fb.fetchCategories(currentBranch || null);
+          if (fbCategories && fbCategories.length > 0) {
+            setCategories(fbCategories);
+            localStorage.setItem(`pos_categories_${branchKey}`, JSON.stringify(fbCategories));
+          } else {
+            const savedCategories = localStorage.getItem(`pos_categories_${branchKey}`);
+            if (savedCategories) {
+              setCategories(JSON.parse(savedCategories));
+            } else {
+              setCategories(defaultCategories);
+              localStorage.setItem(`pos_categories_${branchKey}`, JSON.stringify(defaultCategories));
+              // Seed defaults to Firestore
+              for (const cat of defaultCategories) {
+                await fb.addCategoryFirestore({ ...cat, branch: currentBranch || null });
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Firestore fetchCategories failed', err);
+          const savedCategories = localStorage.getItem(`pos_categories_${branchKey}`);
+          if (savedCategories) {
+            setCategories(JSON.parse(savedCategories));
+          } else {
+            setCategories(defaultCategories);
+            localStorage.setItem(`pos_categories_${branchKey}`, JSON.stringify(defaultCategories));
+          }
+        }
       } else {
-        setCategories(defaultCategories);
-        localStorage.setItem(`pos_categories_${branchKey}`, JSON.stringify(defaultCategories));
+        const savedCategories = localStorage.getItem(`pos_categories_${branchKey}`);
+        if (savedCategories) {
+          setCategories(JSON.parse(savedCategories));
+        } else {
+          setCategories(defaultCategories);
+          localStorage.setItem(`pos_categories_${branchKey}`, JSON.stringify(defaultCategories));
+        }
       }
 
       const savedMenu = localStorage.getItem(`pos_menu_${branchKey}`);
@@ -228,12 +278,61 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // ==================== CATEGORY FIRESTORE HELPERS ====================
+  const persistCategoryToFirestore = async (category) => {
+    if (!USE_FIRESTORE) return;
+    try {
+      await fb.addCategoryFirestore({ ...category, branch: currentBranch || null });
+    } catch (err) {
+      console.error('Failed to persist category to Firestore:', err);
+    }
+  };
+
+  const persistCategoryUpdateToFirestore = async (id, data) => {
+    if (!USE_FIRESTORE) return;
+    try {
+      await fb.updateCategoryFirestore(id, data);
+    } catch (err) {
+      console.error('Failed to update category in Firestore:', err);
+    }
+  };
+
+  const persistCategoryDeleteToFirestore = async (id) => {
+    if (!USE_FIRESTORE) return;
+    try {
+      await fb.deleteCategoryFirestore(id);
+    } catch (err) {
+      console.error('Failed to delete category from Firestore:', err);
+    }
+  };
+
+  // ==================== BRANCH FIRESTORE HELPERS ====================
+  const persistBranchToFirestore = async (name) => {
+    if (!USE_FIRESTORE) return;
+    try {
+      await fb.addBranchFirestore({ name, createdAt: new Date().toISOString() });
+    } catch (err) {
+      console.error('Failed to persist branch to Firestore:', err);
+    }
+  };
+
+  const persistBranchDeleteToFirestore = async (name) => {
+    if (!USE_FIRESTORE) return;
+    try {
+      await fb.deleteBranchFirestore(name);
+    } catch (err) {
+      console.error('Failed to delete branch from Firestore:', err);
+    }
+  };
+
+  // ==================== ORDER CRUD ====================
   const addOrder = (order) => {
     const branchKey = currentBranch ? `${currentBranch}_` : '';
-    const newOrders = [...orders, order];
+    const orderWithBranch = { ...order, branch: order.branch || currentBranch || null };
+    const newOrders = [...orders, orderWithBranch];
     setOrders(newOrders);
     localStorage.setItem(`pos_orders_${branchKey}`, JSON.stringify(newOrders));
-    persistOrderToFirestore(order);
+    persistOrderToFirestore(orderWithBranch);
   };
 
   const updateOrderStatus = (id, newStatus) => {
@@ -260,6 +359,7 @@ export const AppProvider = ({ children }) => {
     persistOrderUpdateToFirestore(id, updatedData);
   };
 
+  // ==================== MENU ITEM CRUD ====================
   const addMenuItem = (item) => {
     const branchKey = currentBranch ? `${currentBranch}_` : '';
     const newMenu = [...menuItems, { ...item, id: Date.now() }];
@@ -281,11 +381,14 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem(`pos_menu_${branchKey}`, JSON.stringify(newMenu));
   };
 
+  // ==================== CATEGORY CRUD ====================
   const addCategory = (category) => {
     const branchKey = currentBranch ? `${currentBranch}_` : '';
-    const newCategories = [...categories, { ...category, id: Date.now() }];
+    const newCat = { ...category, id: Date.now() };
+    const newCategories = [...categories, newCat];
     setCategories(newCategories);
     localStorage.setItem(`pos_categories_${branchKey}`, JSON.stringify(newCategories));
+    persistCategoryToFirestore(newCat);
   };
 
   const editCategory = (id, updatedCategory) => {
@@ -293,6 +396,7 @@ export const AppProvider = ({ children }) => {
     const newCategories = categories.map(cat => cat.id === id ? { ...cat, ...updatedCategory } : cat);
     setCategories(newCategories);
     localStorage.setItem(`pos_categories_${branchKey}`, JSON.stringify(newCategories));
+    persistCategoryUpdateToFirestore(id, updatedCategory);
   };
 
   const deleteCategory = (id) => {
@@ -300,14 +404,17 @@ export const AppProvider = ({ children }) => {
     const newCategories = categories.filter(cat => cat.id !== id);
     setCategories(newCategories);
     localStorage.setItem(`pos_categories_${branchKey}`, JSON.stringify(newCategories));
+    persistCategoryDeleteToFirestore(id);
   };
 
+  // ==================== BRANCH CRUD ====================
   const addBranch = (name) => {
     const newBranches = [...branches, name];
     setBranches(newBranches);
     localStorage.setItem('pos_branches', JSON.stringify(newBranches));
     setCurrentBranch(name);
     localStorage.setItem('pos_branch', name);
+    persistBranchToFirestore(name);
   };
 
   const deleteBranch = (name) => {
@@ -322,6 +429,7 @@ export const AppProvider = ({ children }) => {
     // Remove stored data for the branch
     const keys = ['orders', 'menu', 'categories', 'users'];
     keys.forEach(k => localStorage.removeItem(`pos_${k}_${name}_`));
+    persistBranchDeleteToFirestore(name);
   };
 
 
@@ -351,27 +459,9 @@ export const AppProvider = ({ children }) => {
     language,
     setLang,
     t,
-    // Branch management functions
-    addBranch: (name) => {
-      const newBranches = [...branches, name];
-      setBranches(newBranches);
-      localStorage.setItem('pos_branches', JSON.stringify(newBranches));
-      setCurrentBranch(name);
-      localStorage.setItem('pos_branch', name);
-    },
-    deleteBranch: (name) => {
-      const newBranches = branches.filter(b => b !== name);
-      setBranches(newBranches);
-      localStorage.setItem('pos_branches', JSON.stringify(newBranches));
-      if (currentBranch === name) {
-        const fallback = newBranches[0] || null;
-        setCurrentBranch(fallback);
-        if (fallback) localStorage.setItem('pos_branch', fallback); else localStorage.removeItem('pos_branch');
-      }
-      // Remove stored data for the branch
-      const keys = ['orders', 'menu', 'categories', 'users'];
-      keys.forEach(k => localStorage.removeItem(`pos_${k}_${name}_`));
-    },
+    // Branch management functions (use the Firestore-aware versions defined above)
+    addBranch,
+    deleteBranch,
     // User management functions
     addUser: (user) => {
       const normalizedUser = {
